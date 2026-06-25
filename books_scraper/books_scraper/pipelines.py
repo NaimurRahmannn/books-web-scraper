@@ -2,6 +2,8 @@ import re
 
 from itemadapter import ItemAdapter
 
+import os
+import sqlite3
 
 class CleaningPipeline:
     PRICE_PATTERN = re.compile(r"[\d.]+")
@@ -41,3 +43,60 @@ class CleaningPipeline:
         if not value:
             return False
         return "in stock" in value.lower()
+    
+
+
+
+
+class SQLitePipeline:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.connection = None
+        self.cursor = None
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(db_path=crawler.settings.get("SQLITE_DB_PATH", "books.db"))
+
+    def open_spider(self, spider):
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        self.connection = sqlite3.connect(self.db_path)
+        self.cursor = self.connection.cursor()
+        self.cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS books (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                price REAL,
+                availability INTEGER,
+                product_url TEXT UNIQUE,
+                image_url TEXT,
+                category TEXT
+            )
+            """
+        )
+        self.connection.commit()
+    def process_item(self, item):
+        adapter = ItemAdapter(item)
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE INTO books
+                (title, price, availability, product_url, image_url, category)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                adapter.get("title"),
+                adapter.get("price"),
+                int(bool(adapter.get("availability"))),
+                adapter.get("product_url"),
+                adapter.get("image_url"),
+                adapter.get("category"),
+            ),
+        )
+        self.connection.commit()
+        return item
+
+    def close_spider(self, spider):
+        if self.connection:
+            self.connection.close()
+    

@@ -56,11 +56,12 @@ TELNETCONSOLE_ENABLED = False
 # EXTENSIONS = {
 #    "scrapy.extensions.telnet.TelnetConsole": None,
 # }
-
+SQLITE_DB_PATH = "output/books.db"
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "books_scraper.pipelines.CleaningPipeline": 300,
+      "books_scraper.pipelines.SQLitePipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -86,3 +87,21 @@ ITEM_PIPELINES = {
 
 # Set settings whose default value is deprecated to a future-proof value
 FEED_EXPORT_ENCODING = "utf-8"
+FEEDS = {
+    "output/books.json": {
+        "format": "json",
+        "encoding": "utf-8",
+        "indent": 2,
+        "overwrite": True,
+    },
+    "output/books.csv": {
+        "format": "csv",
+        "encoding": "utf-8",
+        "overwrite": True,
+    },
+    "output/books.xml": {
+        "format": "xml",
+        "encoding": "utf-8",
+        "overwrite": True,
+    },
+}
