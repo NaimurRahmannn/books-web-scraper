@@ -12,6 +12,8 @@ BOT_NAME = "books_scraper"
 SPIDER_MODULES = ["books_scraper.spiders"]
 NEWSPIDER_MODULE = "books_scraper.spiders"
 
+BOOKS_BASE_URL = "https://books.toscrape.com/index.html"
+
 ADDONS = {}
 
 
