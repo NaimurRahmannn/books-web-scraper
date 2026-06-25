@@ -1,0 +1,10 @@
+venv/
+build/
+output/
+project.egg-info/
+dbs/
+eggs/
+logs/
+twistd.pid
+books_scraper/books_scraper/__pycache__/
+books_scraper/books_scraper/test_output.json
