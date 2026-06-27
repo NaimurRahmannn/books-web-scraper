@@ -59,7 +59,9 @@ class SQLitePipeline:
         return cls(db_path=crawler.settings.get("SQLITE_DB_PATH", "books.db"))
 
     def open_spider(self, spider):
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        directory = os.path.dirname(self.db_path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
         self.cursor.execute(
