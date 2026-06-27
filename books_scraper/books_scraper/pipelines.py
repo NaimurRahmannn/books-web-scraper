@@ -6,9 +6,15 @@ import os
 import sqlite3
 
 class CleaningPipeline:
+    """Tidies up raw scraped values before anything else touches them.
+     Trims whitespace, turns the price string into a float and the availability
+    text into a plain boolean so the rest of the pipeline gets clean data.
+    """
+
     PRICE_PATTERN = re.compile(r"[\d.]+")
 
     def process_item(self, item, spider):
+        """Clean every field on the item and hand it back."""
         adapter = ItemAdapter(item)
 
         for field in ("title", "category"):
@@ -28,9 +34,11 @@ class CleaningPipeline:
 
         return item
     def _normalize_text(self, value):
+        """Collapse runs of whitespace and trim the ends."""
         return " ".join(value.split())
 
     def _parse_price(self, value):
+        """Drop the currency symbol and return the price as a float."""
         if value is None:
             return None
         match = self.PRICE_PATTERN.search(value)
@@ -49,7 +57,9 @@ class CleaningPipeline:
 
 
 class SQLitePipeline:
+
     def __init__(self, db_path):
+
         self.db_path = db_path
         self.connection = None
         self.cursor = None
@@ -59,6 +69,7 @@ class SQLitePipeline:
         return cls(db_path=crawler.settings.get("SQLITE_DB_PATH", "books.db"))
 
     def open_spider(self, spider):
+        """Connect to the db"""
         directory = os.path.dirname(self.db_path)
         if directory:
             os.makedirs(directory, exist_ok=True)
@@ -79,6 +90,7 @@ class SQLitePipeline:
         )
         self.connection.commit()
     def process_item(self, item, spider):
+        """Insert the book, skipping it if we've already seen the URL."""
         adapter = ItemAdapter(item)
         self.cursor.execute(
             """
@@ -99,6 +111,7 @@ class SQLitePipeline:
         return item
 
     def close_spider(self, spider):
+        """Close the db connection when the crawl is done."""
         if self.connection:
             self.connection.close()
     

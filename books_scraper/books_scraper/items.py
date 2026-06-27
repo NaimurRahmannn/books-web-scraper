@@ -2,6 +2,7 @@ import scrapy
 
 
 class BookItem(scrapy.Item):
+    """The fields we scrape for each book"""
 
     title = scrapy.Field()
     price = scrapy.Field()         

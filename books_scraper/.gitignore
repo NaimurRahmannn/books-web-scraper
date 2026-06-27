@@ -6,5 +6,6 @@ dbs/
 eggs/
 logs/
 twistd.pid
-books_scraper/books_scraper/__pycache__/
+__pycache__/
+*.py[cod]
 books_scraper/books_scraper/test_output.json

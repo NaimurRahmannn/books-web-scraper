@@ -6,6 +6,9 @@ from books_scraper.items import BookItem
 
 
 class BooksSpider(scrapy.Spider):
+    """Scrapes books.toscrape.com.
+    """
+
     name = "books"
     allowed_domains = ["books.toscrape.com"]
 
@@ -13,10 +16,12 @@ class BooksSpider(scrapy.Spider):
     BOOKS_PER_CATEGORY = 5
 
     async def start(self):
+        """start from homepage """
         base_url = self.settings.get("BOOKS_BASE_URL")
         yield scrapy.Request(url=base_url, callback=self.parse)
 
     def parse(self, response):
+        """ pick 5 random categories and queue them up."""
         category_links = response.css("div.side_categories ul li ul li a")
 
         categories = []
@@ -43,6 +48,8 @@ class BooksSpider(scrapy.Spider):
             )
 
     def parse_category(self, response, category, book_urls):
+        """Collect book links across all pages, then sample 5 to scrape.
+        """
         for href in response.css("article.product_pod h3 a::attr(href)").getall():
             book_urls.append(response.urljoin(href))
 
@@ -74,6 +81,7 @@ class BooksSpider(scrapy.Spider):
             )
             
     def parse_book(self, response, category):
+        """Pull the fields we care about, a single book's detail page."""
         item = BookItem()
         item["title"] = response.css("div.product_main h1::text").get()
         item["price"] = response.css("p.price_color::text").get()
