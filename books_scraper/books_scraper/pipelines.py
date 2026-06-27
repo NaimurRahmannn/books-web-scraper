@@ -8,7 +8,7 @@ import sqlite3
 class CleaningPipeline:
     PRICE_PATTERN = re.compile(r"[\d.]+")
 
-    def process_item(self, item):
+    def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
         for field in ("title", "category"):
@@ -76,7 +76,7 @@ class SQLitePipeline:
             """
         )
         self.connection.commit()
-    def process_item(self, item):
+    def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         self.cursor.execute(
             """
