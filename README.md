@@ -307,8 +307,7 @@ same 25 records per run.
 
 ![Architecture diagram](docs/architecture.svg)
 
-> The image above is a vector file ([`docs/architecture.svg`](docs/architecture.svg)) — open it
-> in any browser and "Save as PNG" if you need a raster copy.
+> The image above is a vector file ([`docs/architecture.svg`](docs/architecture.svg))
 
 ---
 
