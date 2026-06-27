@@ -87,6 +87,7 @@ class SQLitePipeline:
             )
             """
         )
+        self.cursor.execute("DELETE FROM books")
         self.connection.commit()
     def process_item(self, item):
         """Insert the book, skipping it if we've already seen the URL."""
