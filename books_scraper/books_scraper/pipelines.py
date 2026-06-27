@@ -6,14 +6,13 @@ import os
 import sqlite3
 
 class CleaningPipeline:
-    """Tidies up raw scraped values before anything else touches them.
-     Trims whitespace, turns the price string into a float and the availability
+    """Trims whitespace, turns the price string into a float and the availability
     text into a plain boolean so the rest of the pipeline gets clean data.
     """
 
     PRICE_PATTERN = re.compile(r"[\d.]+")
 
-    def process_item(self, item, spider):
+    def process_item(self, item):
         """Clean every field on the item and hand it back."""
         adapter = ItemAdapter(item)
 
@@ -68,7 +67,7 @@ class SQLitePipeline:
     def from_crawler(cls, crawler):
         return cls(db_path=crawler.settings.get("SQLITE_DB_PATH", "books.db"))
 
-    def open_spider(self, spider):
+    def open_spider(self):
         """Connect to the db"""
         directory = os.path.dirname(self.db_path)
         if directory:
@@ -89,7 +88,7 @@ class SQLitePipeline:
             """
         )
         self.connection.commit()
-    def process_item(self, item, spider):
+    def process_item(self, item):
         """Insert the book, skipping it if we've already seen the URL."""
         adapter = ItemAdapter(item)
         self.cursor.execute(
@@ -110,7 +109,7 @@ class SQLitePipeline:
         self.connection.commit()
         return item
 
-    def close_spider(self, spider):
+    def close_spider(self):
         """Close the db connection when the crawl is done."""
         if self.connection:
             self.connection.close()
