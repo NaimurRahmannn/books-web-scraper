@@ -310,29 +310,6 @@ same 25 records per run.
 > The image above is a vector file ([`docs/architecture.svg`](docs/architecture.svg)) — open it
 > in any browser and "Save as PNG" if you need a raster copy.
 
-The same flow as a Mermaid diagram (rendered automatically on GitHub):
-
-```mermaid
-flowchart TD
-    HP["books.toscrape.com homepage"] --> P["parse()<br/>discover all categories (dynamic)"]
-    P --> CC["count_category()<br/>keep categories with ≥ 5 books, pick 5 at random"]
-    CC --> PC["parse_category()<br/>follow pagination, sample 5 books per category"]
-    PC --> PB["parse_book() → BookItem<br/>title · price · availability · product_url · image_url · category"]
-    PB --> CP["CleaningPipeline<br/>trim · normalize · strip £ → float · availability → bool"]
-    CP --> SQ["SQLitePipeline<br/>clear table · INSERT OR IGNORE"]
-    CP --> FE["Scrapy Feed Exports<br/>configured in settings.py"]
-    SQ --> DB[("output/books.db")]
-    FE --> J["output/books.json"]
-    FE --> C["output/books.csv"]
-    FE --> X["output/books.xml"]
-
-    subgraph Deployment["Runs inside Docker · Scrapyd on :6800"]
-        direction LR
-        HOST["Host: curl /schedule.json"] --> SD["Scrapyd daemon<br/>(auto-deployed project egg)"]
-    end
-    SD -.launches.-> HP
-```
-
 ---
 
 ## Folder Structure
