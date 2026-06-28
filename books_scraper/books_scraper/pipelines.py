@@ -1,9 +1,12 @@
+import logging
+import os
 import re
+import sqlite3
 
 from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
 
-import os
-import sqlite3
+logger = logging.getLogger(__name__)
 
 class CleaningPipeline:
     """Trims whitespace, turns the price string into a float and the availability
@@ -43,22 +46,45 @@ class CleaningPipeline:
         return " ".join(value.split())
 
     def _parse_price(self, value):
-        """Drop the currency symbol and return the price as a float."""
+        """Drop the currency symbol and return the price as a float.
+
+        Returns ``None`` (rather than raising) when the value can't be parsed,
+        leaving the decision to drop the item to ``ValidationPipeline``.
+        """
         if value is None:
             return None
         match = self.PRICE_PATTERN.search(value)
         if not match:
-            spider_msg = f"Could not parse price from: {value!r}"
-            raise ValueError(spider_msg)
+            logger.warning("Could not parse price from: %r", value)
+            return None
         return float(match.group())
 
     def _parse_availability(self, value):
         if not value:
             return False
         return "in stock" in value.lower()
-    
 
 
+class ValidationPipeline:
+    """Drops items that are missing any field we consider mandatory.
+
+    Runs after cleaning and before persistence, so the database and the
+    exported files only ever receive complete records.
+    """
+
+    REQUIRED_FIELDS = ("title", "price", "product_url")
+
+    # spider=None: optional since Scrapy 2.14 (not a missing arg) - see README Design Decisions
+    def process_item(self, item, spider=None):
+        """Return the item if it is valid, otherwise raise DropItem."""
+        adapter = ItemAdapter(item)
+        for field in self.REQUIRED_FIELDS:
+            if adapter.get(field) in (None, ""):
+                raise DropItem(
+                    f"Missing required field '{field}' "
+                    f"for {adapter.get('product_url') or 'unknown URL'}"
+                )
+        return item
 
 
 class SQLitePipeline:

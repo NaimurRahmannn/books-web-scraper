@@ -61,7 +61,8 @@ SQLITE_DB_PATH = "output/books.db"
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     "books_scraper.pipelines.CleaningPipeline": 300,
-      "books_scraper.pipelines.SQLitePipeline": 400,
+    "books_scraper.pipelines.ValidationPipeline": 350,
+    "books_scraper.pipelines.SQLitePipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
