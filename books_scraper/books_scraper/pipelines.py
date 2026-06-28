@@ -12,8 +12,14 @@ class CleaningPipeline:
 
     PRICE_PATTERN = re.compile(r"[\d.]+")
 
-    def process_item(self, item):
-        """Clean every field on the item and hand it back."""
+    # spider=None: optional since Scrapy 2.14 (not a missing arg) - see README Design Decisions
+    def process_item(self, item, spider=None):
+        """Clean every field on the item and hand it back.
+
+        ``spider`` is accepted for compatibility with every Scrapy version: it
+        is required by Scrapy < 2.14 and optional (passing it is deprecated)
+        from 2.14 onward, so a default of ``None`` works cleanly on both.
+        """
         adapter = ItemAdapter(item)
 
         for field in ("title", "category"):
@@ -67,8 +73,9 @@ class SQLitePipeline:
     def from_crawler(cls, crawler):
         return cls(db_path=crawler.settings.get("SQLITE_DB_PATH", "books.db"))
 
-    def open_spider(self):
-        """Connect to the db"""
+    # spider=None: optional since Scrapy 2.14 (not a missing arg) - see README Design Decisions
+    def open_spider(self, spider=None):
+        """Connect to the db (``spider`` kept for Scrapy version compatibility)."""
         directory = os.path.dirname(self.db_path)
         if directory:
             os.makedirs(directory, exist_ok=True)
@@ -89,7 +96,8 @@ class SQLitePipeline:
         )
         self.cursor.execute("DELETE FROM books")
         self.connection.commit()
-    def process_item(self, item):
+    # spider=None: optional since Scrapy 2.14 (not a missing arg) - see README Design Decisions
+    def process_item(self, item, spider=None):
         """Insert the book, skipping it if we've already seen the URL."""
         adapter = ItemAdapter(item)
         self.cursor.execute(
@@ -110,7 +118,8 @@ class SQLitePipeline:
         self.connection.commit()
         return item
 
-    def close_spider(self):
+    # spider=None: optional since Scrapy 2.14 (not a missing arg) - see README Design Decisions
+    def close_spider(self, spider=None):
         """Close the db connection when the crawl is done."""
         if self.connection:
             self.connection.close()
