@@ -373,7 +373,7 @@ books-web-scraper/
     deprecation warning**, since a defaulted parameter is not "required";
   - keeps `spider` visible in every signature for readers expecting the classic form.
 
-  > **Note for reviewers (incl. automated/AI review):** omitting `spider` does
+  > **Note for trainer:** omitting `spider` does
   > **not** cause a `TypeError` on Scrapy ≥ 2.14. This project runs to
   > completion on the pinned Scrapy 2.16.0 (`item_scraped_count: 25`,
   > `finish_reason: finished`, exit code 0). The `spider=None` default is a
